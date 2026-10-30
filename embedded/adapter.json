@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "id": "codex-windows-26.1023.6621.0-discovery-v3-chat",
+  "supportedVersions": ["26.1023.6621.0"],
+  "runtimeValidated": false,
+  "asarSha256": "99ed83950473e34e642f2942226bf40ce9b65e9910afbe8e406120459823c02d",
+  "documentProtocols": ["app:"],
+  "shellSelectors": ["[data-app-shell-main-surface]", "main.main-surface", "main[class*='_MainContentSurface_']"],
+  "sidebarSelectors": ["aside.app-shell-left-panel"],
+  "composerSelectors": ["[data-codex-composer-root] [contenteditable='true']", "[data-codex-composer-root] textarea"],
+  "chatComposerSelectors": [".ProseMirror[contenteditable='true']"],
+  "startupBlockerSelectors": ["[data-testid='startup-loading']", "[data-testid='startup-error']"],
+  "authSelectors": ["[data-testid='login-screen']", "[data-testid='sign-in-screen']"],
+  "errorSelectors": ["[data-testid='startup-error']"],
+  "nativeReadySignal": {
+    "kind": "codex-startup-modules",
+    "hostBundle": "app-shared-3b88f728481f.js",
+    "hostExport": "Sst",
+    "phaseBundle": "app-primary-83c2b5ae05b6.js",
+    "phaseExport": "yG",
+    "requiredPhase": "background_ready"
+  },
+  "note": "Version-pinned static evidence only. Native whenReady plus background_ready phase plus interactive UI are mandatory. No reach/setter calls. Real Codex cold-start verification remains required."
+}

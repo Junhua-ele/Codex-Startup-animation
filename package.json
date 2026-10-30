@@ -1,0 +1,16 @@
+{
+  "name": "codex-neon-boot",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Unofficial, version-pinned Windows Codex startup animation",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node tools/build-monochrome.mjs",
+    "shortcut": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/create-shortcut.ps1",
+    "package:source": "node tools/package-release.mjs"
+  }
+}
