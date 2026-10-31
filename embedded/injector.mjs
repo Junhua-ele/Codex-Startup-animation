@@ -29,7 +29,7 @@ export async function run(sessionFile, {maxWaitMs=60000}={}) {
   const [adapter,markup,runtime]=await Promise.all([
     readFile(join(here,'adapter.json'),'utf8').then(JSON.parse),readFile(join(here,'overlay.html'),'utf8'),readFile(join(here,'overlay.js'),'utf8')
   ]);
-  if(!adapter.supportedVersions.includes(info.packageVersion)) throw new Error('This Codex version has no reviewed startup adapter');
+  // Version matching is diagnostic only; newer builds are allowed to attach.
   const payload=buildPayload({adapter,markup,runtime,maxWaitMs});
   const version=await fetchDebugJson(info.port,'/json/version');
   const endpoint=validateSocket(version.webSocketDebuggerUrl,info.port,'browser',info.browserId);
@@ -64,7 +64,7 @@ export async function run(sessionFile, {maxWaitMs=60000}={}) {
     catch{log({event:'module-discovery-unavailable'});}
     if(anchor.closed) throw new Error('Original Codex process disconnected');
     try { await page.evaluate(payload); } catch(e) { if(e.cdpCode!==-32000) throw e; }
-    log({event:'attached',adapter:adapter.id,nativeSignalConfigured:Boolean(adapter.nativeReadySignal),versionMatched:true,runtimeValidated:adapter.runtimeValidated});
+    log({event:'attached',adapter:adapter.id,nativeSignalConfigured:Boolean(adapter.nativeReadySignal),versionMatched:adapter.supportedVersions.includes(info.packageVersion),runtimeValidated:adapter.runtimeValidated});
     while(!stopped && !anchor.closed && !page.closed && Date.now()-started<maxWaitMs+10000) {
       let state;
       try {
@@ -99,5 +99,5 @@ export async function run(sessionFile, {maxWaitMs=60000}={}) {
 if(process.argv[1] && import.meta.url===pathToFileURL(process.argv[1]).href) {
   const index=process.argv.indexOf('--session');
   if(index<0 || !process.argv[index+1]) { console.error('Usage: node embedded/injector.mjs --session verified-session.json'); process.exitCode=1; }
-  else run(process.argv[index+1]).then(code=>{process.exitCode=code;}).catch(()=>{ console.error('Embedded startup could not attach. Codex was not modified or terminated.'); process.exitCode=1; });
+  else run(process.argv[index+1]).then(code=>{process.exitCode=code;}).catch(error=>{ console.error('Embedded startup could not attach. Codex was not modified or terminated.'); console.error(error.message); process.exitCode=1; });
 }

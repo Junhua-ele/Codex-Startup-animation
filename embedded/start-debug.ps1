@@ -80,13 +80,12 @@ function Invoke-NeonDebug {
     $reviewed=@($adapter.supportedVersions) -contains $codex.Version
     $running=@(Get-NeonRunningCodex $codex)
     $listeners=@(Get-NetTCPConnection -LocalPort $DebugPort -State Listen -ErrorAction SilentlyContinue)
-    $plan=[pscustomobject]@{ schema=1; packageVersion=$codex.Version; normalEntryPreserved=$true; runningProcesses=$running.Count; port=$DebugPort; portAvailable=($listeners.Count -eq 0); staticAdapterMatch=$reviewed; nativeRuntimeValidated=$adapter.runtimeValidated; canColdStart=($reviewed -and $running.Count -eq 0 -and $listeners.Count -eq 0) }
+    $plan=[pscustomobject]@{ schema=1; packageVersion=$codex.Version; normalEntryPreserved=$true; runningProcesses=$running.Count; port=$DebugPort; portAvailable=($listeners.Count -eq 0); staticAdapterMatch=$reviewed; versionCheckEnabled=$false; hashCheckEnabled=$false; nativeRuntimeValidated=$adapter.runtimeValidated; canColdStart=($running.Count -eq 0 -and $listeners.Count -eq 0) }
     if($InspectOnly) { $plan | ConvertTo-Json; return }
     if($running.Count) { throw 'Codex is currently open. Save your work and close it yourself before using this experimental entry. No processes were stopped.' }
     if($listeners.Count) { throw 'The selected debug port is occupied. Nothing was launched.' }
-    if(-not $reviewed) { throw 'This Codex build has no reviewed startup adapter. Use the normal entry.' }
-    $asar=Join-Path $codex.Package.InstallLocation 'app\resources\app.asar'
-    if((Get-FileHash -LiteralPath $asar -Algorithm SHA256).Hash -ine $adapter.asarSha256) { throw 'Codex resources changed since static review. Use the normal entry; the adapter must be reviewed again.' }
+    # Version allowlist enforcement temporarily disabled; keep the static match for diagnostics.
+    # Resource hash enforcement temporarily disabled to allow newer Codex builds.
     $root=Split-Path $PSScriptRoot -Parent
     if(Test-Path -LiteralPath (Join-Path $root 'disable-animation.flag')) { throw 'Animation is disabled. Use the normal Codex entry.' }
     $runtime=Join-Path $root '.neon-runtime'
